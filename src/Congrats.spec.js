@@ -2,11 +2,12 @@ import React from 'react'
 import Enzyme, { shallow } from 'enzyme'
 import EnzymeAdapter from 'enzyme-adapter-react-16'
 
-import { findByTestAttr } from '../test/testUtils'
+import { findByTestAttr, checkProps } from '../test/testUtils'
 import Congrats from './Congrats'
-import { exportAllDeclaration } from '@babel/types';
 
 Enzyme.configure({ adapter: new EnzymeAdapter() })
+
+const defaultProps = { success: false }
 
 /** 
  * Factory function to create a ShallowWrapper for the Congrats component
@@ -14,8 +15,9 @@ Enzyme.configure({ adapter: new EnzymeAdapter() })
  * @param {object} props - Component props specific to this setup
  * @returns {ShallowWrapper}
 */
-const setup = (props={}) => {
-  return shallow(<Congrats {...props} />)
+const setup = (props = {}) => {
+  const setupProps = { ...defaultProps, ...props }
+  return shallow(<Congrats {...setupProps} />)
 }
 
 test('should render without error', () => {
@@ -25,13 +27,18 @@ test('should render without error', () => {
 });
 
 test('should render no text when "success" prop is false', () => {
-  const wrapper = setup({success: false})
+  const wrapper = setup({ success: false })
   const component = findByTestAttr(wrapper, 'component-congrats')
   expect(component.text()).toBe('')
 })
 
 test('renders non-empty congrats message when "success" props is true', () => {
-  const wrapper = setup({success: true})
+  const wrapper = setup({ success: true })
   const message = findByTestAttr(wrapper, 'congrats-message')
   expect(message.text().length).not.toBe(0)
+})
+
+test('does not throw warning with expected props', () => {
+  const expectedProps = { success: false }
+  checkProps(Congrats, expectedProps)
 })
